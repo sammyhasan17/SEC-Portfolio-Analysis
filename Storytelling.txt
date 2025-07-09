@@ -1,0 +1,51 @@
+
+1. Is our group growing or shrinking?
+
+Showcase:
+- Calculate total net sales and EBITDA for all companies combined and compare YoY.
+- Visual: Bar or stacked column chart showing total net sales this year vs last year.
+- Visual: Line chart tracking combined net sales and EBITDA over multiple quarters.
+- Highlight % growth or contraction.
+
+Why CEO/CFO cares:
+This reveals the overall health and direction of the market segment, signaling whether growth opportunities exist or if strategic shifts are needed due to contraction.
+
+Potential Actions:
+- Explore new market opportunities if growth is strong.
+- Reassess investments and cost structures if the market is shrinking.
+- Adjust strategic priorities based on industry trends.
+
+---
+
+2. How is each company growing relative to the group?
+
+Showcase:
+- Present YoY % growth for net sales and EBITDA for each company side-by-side.
+- Visual: Bar chart or ranked leaderboard with color coding for growth (green) or decline (red).
+- Easily spot leaders and laggards.
+
+Why CEO/CFO cares:
+Benchmarking competitor performance helps identify market share changes, guiding resource allocation and competitive strategy.
+
+Potential Actions:
+- Target specific competitors for competitive analysis or market share recovery.
+- Allocate resources to strengthen areas where competitors are outperforming.
+- Identify partnership or acquisition opportunities with high-growth players.
+
+---
+
+3. How did tariffs impact performance?
+
+Showcase:
+- Highlight companies with higher tariff exposure.
+- Visual: Compare gross margin or EBITDA margin YoY to detect margin compression.
+- Visual: Timeline showing financial trends before and after tariff implementation.
+- Include notes on tariff impact from earnings reports.
+
+Why CEO/CFO cares:
+Understanding tariff-driven cost pressures supports risk management, pricing decisions, and supply chain strategy adjustments.
+
+Potential Actions:
+- Negotiate with suppliers or explore alternative sourcing to reduce tariff impact.
+- Adjust pricing strategies to maintain margins.
+- Plan for potential future tariff changes in budgeting and forecasting.

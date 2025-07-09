@@ -1,0 +1,16 @@
+719   0000077360    PNR                   PENTAIR plc
+808   0000945841   POOL                     POOL CORP
+930   0000091142    AOS                SMITH A O CORP
+1122  0000795403    WTS  WATTS WATER TECHNOLOGIES INC
+1717  0001834622   HAYW        Hayward Holdings, Inc.
+2739  0001833197   SWIM            Latham Group, Inc.
+4185  0001821806   LESL                Leslie's, Inc.
+........................................Fluidra (Not in SEC filing)
+
+(annual and each Q)
+get net sales (i.e. net revenue)
+gross margin
+EBITDA ≈ Net Sales - COGS - SG&A
+sg&a
+net cashflow from operations
+
