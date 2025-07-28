@@ -33,6 +33,7 @@ ebitda_components = {
 }
 
 headers = {"User-Agent": "Sam Hasan sam@example.com"}
+
 all_company_data = {}
 # main loop
 for cik in company_map:
@@ -142,42 +143,46 @@ for cik in company_map:
     else:
         results.append(("Gross Margin (%)", "N/A"))
 
-    # Display header line
     if header_details:
+    # Print a header for this company's data in the console
         print(f"\n\n==============================")
         print(f"{name} | CIK: {cik_padded} | {header_details['form']} | FY: {header_details['fy']} | Period: {header_details['fp']} | End: {header_details['end']}")
         print(f"==============================")
-        for label, val in results:
+    
+    # Print each metric and its value in the console
+    for label, val in results:
+        if isinstance(val, (int, float)):
+            val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
+        else:
+            val_str = val
+        print(f"{label}: {val_str}")
 
-            if isinstance(val, (int, float)):
-                val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
-            else:
-                val_str = val
+    # Open the Excel workbook
+    wk = xw.books.open(r'C:\Users\Sammy\OneDrive\Documents\GitHub\SEC-to-EXCEL\ticker_file.xlsm')
 
-            print(f"{label}: {val_str}")
+    # Select the 'Data' sheet
+    sheet = wk.sheets('Data')
+    start_row = 1
+    start_col = 1  # Column A
 
-        wk = xw.books.open(r'C:\Users\sam.hasan\PyCharmMiscProject\ticker_file.xlsm')
-        sheet = wk.sheets('Data')
-        start_row = 1
-        start_col = 1  # Column M
+    # Find the last used row in the first column to append new data after a blank row
+    last_row = sheet.range((sheet.cells.last_cell.row, start_col)).end('up').row
+    write_row = last_row + 2 if last_row >= start_row else start_row
 
-        last_row = sheet.range((sheet.cells.last_cell.row, start_col)).end('up').row
-        write_row = last_row + 2 if last_row >= start_row else start_row
+    # Write the company header info to the sheet
+    sheet.range((write_row, start_col)).value = [
+        f"{name} | CIK: {cik_padded} | {header_details['form']} | FY: {header_details['fy']} | Period: {header_details['fp']} | End: {header_details['end']}"
+    ]
+    write_row += 1
 
-        # Header
-        sheet.range((write_row, start_col)).value = [
-            f"{name} | CIK: {cik_padded} | {header_details['form']} | FY: {header_details['fy']} | Period: {header_details['fp']} | End: {header_details['end']}"
-        ]
+    # Write each metric and its value to the sheet, one per row
+    for label, val in results:
+        if isinstance(val, (int, float)):
+            val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
+        else:
+            val_str = val
+        sheet.range((write_row, start_col)).value = [label, val_str]
         write_row += 1
-
-        # Metrics
-        for label, val in results:
-            if isinstance(val, (int, float)):
-                val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
-            else:
-                val_str = val
-            sheet.range((write_row, start_col)).value = [label, val_str]
-            write_row += 1
 
 # success output
 
@@ -186,7 +191,5 @@ print('####################')
 print('Program completed')
 print('####################')
 
-# # Output into Excel
-# wk = xw.books.open(r'C:\Users\sam.hasan\PyCharmMiscProject\ticker_file.xlsm')
-# sheet = wk.sheets('Data')
+
 

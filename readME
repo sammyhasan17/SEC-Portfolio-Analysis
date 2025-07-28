@@ -1,4 +1,8 @@
 
+# Dependancies
+
+# pip install requests, xlwings & msal
+
 
 # ===============================================
 # EBITDA Handling Logic
