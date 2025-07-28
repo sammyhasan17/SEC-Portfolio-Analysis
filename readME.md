@@ -1,76 +1,103 @@
+Absolutely — here’s the **complete `README.md` content**, perfectly formatted to paste directly into a Markdown file or a terminal that supports Markdown rendering:
 
-# Dependancies
+---
 
-# pip install requests, xlwings & msal
+````markdown
+# 📈 SEC Filing EBITDA Extractor & Excel Automation
 
+Automates the extraction or estimation of EBITDA from SEC filings and writes results to Excel using Python and VBA.
 
-# ===============================================
-# EBITDA Handling Logic
-# ===============================================
-# If "EBITDA" is directly reported (via the
-# EarningsBeforeInterestTaxesDepreciationAndAmortization tag
-# in SEC filings), we use that value.
-#
-# If it's not reported, we estimate EBITDA using the
-# standard formula:
-#
-#     EBITDA = Net Income
-#            + Interest
-#            + Taxes
-#            + Depreciation
-#            + Amortization
-#
-#       (more at bottom)
-#
-#
+---
 
+## 📦 Dependencies
 
-# We do NOT use Adjusted EBITDA, because:
-# - Adjusted EBITDA is often calculated with additional
-#   custom adjustments (e.g., stock compensation,
-#   restructuring costs, etc.)
-# - These adjustments vary by company and are not standardized
-#   in the SEC’s US-GAAP taxonomy
-# - Adjusted values are often only available in press releases
-#   or investor presentations, not in machine-readable XBRL data
+Install the required Python libraries:
 
+```bash
+pip install requests xlwings msal
+````
 
-# ===============================================
-Configuration Notes:
-# ===============================================
-if the program stops working:
+---
 
--resave the same excel file to same location (Overwrite)
+## 📊 EBITDA Handling Logic
 
--Make sure file isn't being accessed by other programs
+### ✅ If Directly Reported
 
--Multiple Excel windows could affect VBA program in an unexpected way, close them
+Use the `EarningsBeforeInterestTaxesDepreciationAndAmortization` tag from SEC XBRL filings.
 
+### ⚙️ If Not Reported
 
-Test above scenarios and find a way to not have to resave file or have a script to resave itself in the VBA code
+Estimate EBITDA using the standard formula:
 
-How I fixed main issue:
-The file could not be found and I would need to overwrite (save as again) for it to work, but thats because Python couldnt find it using the path I put into the script but since It was in same project file, when i saved-as python could read it without needing the absolute path. Abslute path is better.
+```
+EBITDA = Net Income
+       + Interest
+       + Taxes
+       + Depreciation
+       + Amortization
+```
 
-# ===============================================
-Calculation Notes
-# ===============================================
-Q4 can be found by the following logic: Annual - Q3 - Q2 - Q1 = Q4
-Gross Margin is rounded to nearest integer
+---
 
-Net Cashflow from operations = Net cash used in operating activities
+### ❌ Why We Do NOT Use Adjusted EBITDA
 
+* Includes non-standard custom adjustments (e.g., stock comp, restructuring).
+* Not consistent across companies or available in XBRL.
+* Often found only in **press releases** or **investor presentations**.
 
-Calculations of EBITDA could also be:(for verification)
- EBITDA = Net Sales
-       – Operating Expenses (excluding D&A)
+---
 
-# ===============================================
-Assumptions
-# ===============================================
-We assume comparing the best way is to use the most recent SEC filings from each company rather than aligning by fiscal quarter,
-because our dashboard is updated quarterly with new data.
-This approach ensures we're comparing performance across similar calendar windows,
-even though companies may operate on different fiscal calendars.
+## ⚙️ Configuration Notes
+
+If the program stops working:
+
+* ✅ Re-save the Excel file to the same location (overwrite it).
+* ✅ Make sure **no other programs** are using the file.
+* ✅ **Close all Excel windows** – multiple instances may cause issues.
+
+### 🛠 Root Cause + Fix
+
+Python couldn't find the file because of a relative path issue. Re-saving (Save As) made the file readable.
+**✅ Recommended: Use absolute paths for reliability.**
+
+---
+
+## 🧮 Calculation Notes
+
+* **Q4 Calculation**:
+
+  ```
+  Q4 = Annual - Q3 - Q2 - Q1
+  ```
+
+* **Gross Margin**: Rounded to the nearest integer
+
+* **Net Cashflow from Operations**: Uses `Net cash used in operating activities`
+
+### 🔁 Alternative EBITDA Formula (for verification)
+
+```
+EBITDA = Net Sales
+       – Operating Expenses (excluding Depreciation & Amortization)
+```
+
+---
+
+## 📌 Assumptions
+
+We compare companies using their **most recent SEC filings**, regardless of fiscal calendars.
+
+### Why?
+
+* Ensures comparisons are across **similar calendar windows**
+* Keeps analysis consistent and fresh
+* Our **dashboard is updated quarterly** with new filings
+
+---
+
+```
+
+Let me know if you’d like this saved into a file or adapted for Jupyter, Notion, or a portfolio site.
+```
 
 
