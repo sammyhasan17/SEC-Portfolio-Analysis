@@ -1,201 +1,201 @@
-Proper peer tickers
+# Proper peer tickers
 
-excel integration
+# excel integration
 
-button
+# button
 
-file > settings > python interpreter > + > find library you need > install package
-
-
-best VBA so far...
-Sub RunPythonScript()
-
-    ' This line displays a message box to let you know that the macro was triggered.
-    MsgBox "Running Python script..."  ' Add this line to check if the macro is triggered
+# file > settings > python interpreter > + > find library you need > install package
 
 
-    Dim PythonExePath As String, PythonScriptPath As String
-    ActiveWorkbook.Save
-    ChDir ActiveWorkbook.Path
+# best VBA so far...
+# Sub RunPythonScript()
+
+#     ' This line displays a message box to let you know that the macro was triggered.
+#     MsgBox "Running Python script..."  ' Add this line to check if the macro is triggered
 
 
-    ' Declare a variable objShell, which will be used to run external programs (like Python).
-    Dim objShell As Object
-
-    ' Set objShell to create an instance of WScript.Shell, which allows us to run shell commands (like executing a script).
-    Set objShell = CreateObject("WScript.Shell")
-
-    ' This line runs the Python script.
-    ' - The command `objShell.Run` is used to execute an external program (in this case, Python).
-    ' - "python" is the command to run Python.
-    ' - The file path to your Python script is provided between the quotes.
-    ' - The `1` specifies that the command window (if any) will be shown
-    ' - `True` means the macro will wait for the Python script to finish before continuing the VBA code.
-
-    PythonExePath = """C:\Users\sam.hasan\AppData\Local\Microsoft\WindowsApps\python.exe"""
-
-    PythonScriptPath = """C:\Users\sam.hasan\PyCharmMiscProject\hello.py"""
-
-    objShell.Run PythonExePath & PythonScriptPath
+#     Dim PythonExePath As String, PythonScriptPath As String
+#     ActiveWorkbook.Save
+#     ChDir ActiveWorkbook.Path
 
 
+#     ' Declare a variable objShell, which will be used to run external programs (like Python).
+#     Dim objShell As Object
 
-    ' Clean up and release the objShell object, which is no longer needed.
-    ' Set objShell = Nothing
+#     ' Set objShell to create an instance of WScript.Shell, which allows us to run shell commands (like executing a script).
+#     Set objShell = CreateObject("WScript.Shell")
 
-    ' This line shows a message box after the Python script has finished running.
-    MsgBox "Ended Python script..."  ' Add this line to check if the macro is triggered
-End Sub
+#     ' This line runs the Python script.
+#     ' - The command `objShell.Run` is used to execute an external program (in this case, Python).
+#     ' - "python" is the command to run Python.
+#     ' - The file path to your Python script is provided between the quotes.
+#     ' - The `1` specifies that the command window (if any) will be shown
+#     ' - `True` means the macro will wait for the Python script to finish before continuing the VBA code.
+
+#     PythonExePath = """C:\Users\sam.hasan\AppData\Local\Microsoft\WindowsApps\python.exe"""
+
+#     PythonScriptPath = """C:\Users\sam.hasan\PyCharmMiscProject\hello.py"""
+
+#     objShell.Run PythonExePath & PythonScriptPath
 
 
 
-wings file code:
+#     ' Clean up and release the objShell object, which is no longer needed.
+#     ' Set objShell = Nothing
 
-import requests
+#     ' This line shows a message box after the Python script has finished running.
+#     MsgBox "Ended Python script..."  ' Add this line to check if the macro is triggered
+# End Sub
 
-# Company name and CIK mapping
-company_map = {
-    "0000077360": "PENTAIR plc (PNR)",
-    "0000945841": "POOL CORP (POOL)",
-    "0000091142": "SMITH A O CORP (AOS)",
-    "0000795403": "WATTS WATER TECHNOLOGIES INC (WTS)",
-    "0001834622": "Hayward Holdings, Inc. (HAYW)",
-    "0001833197": "Latham Group, Inc. (SWIM)",
-    "0001821806": "Leslie's, Inc. (LESL)"
-}
 
-# US-GAAP keys to search for each metric
-metrics = {
-    "Net Sales": ["Revenues", "SalesRevenueNet", "RevenueFromContractWithCustomerExcludingAssessedTax"],
-    "Gross Margin": ["GrossMargin"],  # Used for calculating Gross Margin
-    "EBITDA": ["EarningsBeforeInterestTaxesDepreciationAndAmortization"],  # Only use if directly reported
-    "SG&A": ["SellingGeneralAndAdministrativeExpense"],
-    "Net Cashflow from Operations": ["NetCashProvidedByUsedInOperatingActivities"]
-}
 
-# Keys used for calculating EBITDA if not directly available
-ebitda_components = {
-    "Net Income": ["NetIncomeLoss", "ProfitLoss"],
-    "Interest": ["InterestExpense", "InterestAndDebtExpense"],
-    "Taxes": ["IncomeTaxExpenseBenefit"],
-    "Depreciation": ["Depreciation", "DepreciationAndAmortization", "DepreciationDepletionAndAmortization"],
-    "Amortization": ["AmortizationOfIntangibleAssets", "Amortization"]
-}
+# wings file code:
 
-headers = {"User-Agent": "Sam Hasan sam@example.com"}
+# import requests
 
-for cik in company_map:
-    cik_padded = cik.zfill(10)
-    name = company_map[cik]
-    url = f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik_padded}.json"
-    response = requests.get(url, headers=headers)
+# # Company name and CIK mapping
+# company_map = {
+#     "0000077360": "PENTAIR plc (PNR)",
+#     "0000945841": "POOL CORP (POOL)",
+#     "0000091142": "SMITH A O CORP (AOS)",
+#     "0000795403": "WATTS WATER TECHNOLOGIES INC (WTS)",
+#     "0001834622": "Hayward Holdings, Inc. (HAYW)",
+#     "0001833197": "Latham Group, Inc. (SWIM)",
+#     "0001821806": "Leslie's, Inc. (LESL)"
+# }
 
-    # Error response
-    if response.status_code != 200:
-        print(f"\n\n==============================")
-        print(f"{name} | CIK: {cik_padded} | Failed to fetch data.")
-        print(f"==============================")
-        continue
+# # US-GAAP keys to search for each metric
+# metrics = {
+#     "Net Sales": ["Revenues", "SalesRevenueNet", "RevenueFromContractWithCustomerExcludingAssessedTax"],
+#     "Gross Margin": ["GrossMargin"],  # Used for calculating Gross Margin
+#     "EBITDA": ["EarningsBeforeInterestTaxesDepreciationAndAmortization"],  # Only use if directly reported
+#     "SG&A": ["SellingGeneralAndAdministrativeExpense"],
+#     "Net Cashflow from Operations": ["NetCashProvidedByUsedInOperatingActivities"]
+# }
 
-    data = response.json()
-    header_details = None
-    results = []
+# # Keys used for calculating EBITDA if not directly available
+# ebitda_components = {
+#     "Net Income": ["NetIncomeLoss", "ProfitLoss"],
+#     "Interest": ["InterestExpense", "InterestAndDebtExpense"],
+#     "Taxes": ["IncomeTaxExpenseBenefit"],
+#     "Depreciation": ["Depreciation", "DepreciationAndAmortization", "DepreciationDepletionAndAmortization"],
+#     "Amortization": ["AmortizationOfIntangibleAssets", "Amortization"]
+# }
 
-    # Try to get reported EBITDA first
-    reported_ebitda = None
-    for key in metrics["EBITDA"]:
-        try:
-            records = data["facts"]["us-gaap"][key]["units"]["USD"]
-            valid_records = [r for r in records if r.get("form") in ["10-K", "10-Q"] and "end" in r]
-            if valid_records:
-                valid_records.sort(key=lambda x: x["end"], reverse=True)
-                reported_ebitda = valid_records[0]
-                if not header_details:
-                    header_details = {
-                        "form": reported_ebitda.get("form", "N/A"),
-                        "fy": reported_ebitda.get("fy", "N/A"),
-                        "fp": reported_ebitda.get("fp", "N/A"),
-                        "end": reported_ebitda.get("end", "N/A")
-                    }
-                break
-        except KeyError:
-            continue
+# headers = {"User-Agent": "Sam Hasan sam@example.com"}
 
-    # Fetch other main metrics
-    for label, possible_keys in metrics.items():
-        if label == "EBITDA":
-            continue  # skip, already handled above
-        most_recent = None
-        for key in possible_keys:
-            try:
-                records = data["facts"]["us-gaap"][key]["units"]["USD"]
-                valid_records = [r for r in records if r.get("form") in ["10-K", "10-Q"] and "end" in r]
-                if not valid_records:
-                    continue
-                valid_records.sort(key=lambda x: x["end"], reverse=True)
-                most_recent = valid_records[0]
-                break
-            except KeyError:
-                continue
+# for cik in company_map:
+#     cik_padded = cik.zfill(10)
+#     name = company_map[cik]
+#     url = f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik_padded}.json"
+#     response = requests.get(url, headers=headers)
 
-        if most_recent:
-            if not header_details:
-                header_details = {
-                    "form": most_recent.get("form", "N/A"),
-                    "fy": most_recent.get("fy", "N/A"),
-                    "fp": most_recent.get("fp", "N/A"),
-                    "end": most_recent.get("end", "N/A")
-                }
-            results.append((label, most_recent.get("val")))
-        else:
-            results.append((label, "N/A"))
+#     # Error response
+#     if response.status_code != 200:
+#         print(f"\n\n==============================")
+#         print(f"{name} | CIK: {cik_padded} | Failed to fetch data.")
+#         print(f"==============================")
+#         continue
 
-    # Handle EBITDA: use reported or estimate it
-    if reported_ebitda:
-        results.append(("Reported EBITDA", reported_ebitda.get("val")))
-    else:
-        # Try estimating EBITDA
-        ebitda_vals = {}
-        for label, possible_keys in ebitda_components.items():
-            most_recent = None
-            for key in possible_keys:
-                try:
-                    records = data["facts"]["us-gaap"][key]["units"]["USD"]
-                    valid_records = [r for r in records if r.get("form") in ["10-K", "10-Q"] and "end" in r]
-                    if not valid_records:
-                        continue
-                    valid_records.sort(key=lambda x: x["end"], reverse=True)
-                    most_recent = valid_records[0]
-                    break
-                except KeyError:
-                    continue
-            if most_recent:
-                ebitda_vals[label] = most_recent.get("val")
+#     data = response.json()
+#     header_details = None
+#     results = []
 
-        # Calculate estimated EBITDA (Note: see readME for how EBITDA has been handled and why)
-        required_parts = ["Net Income", "Interest", "Taxes", "Depreciation", "Amortization"]
-        if all(part in ebitda_vals for part in required_parts):
-            estimated_ebitda = sum(ebitda_vals[part] for part in required_parts)
-            results.append(("Estimated EBITDA", estimated_ebitda))
-        else:
-            results.append(("Estimated EBITDA", "N/A"))
+#     # Try to get reported EBITDA first
+#     reported_ebitda = None
+#     for key in metrics["EBITDA"]:
+#         try:
+#             records = data["facts"]["us-gaap"][key]["units"]["USD"]
+#             valid_records = [r for r in records if r.get("form") in ["10-K", "10-Q"] and "end" in r]
+#             if valid_records:
+#                 valid_records.sort(key=lambda x: x["end"], reverse=True)
+#                 reported_ebitda = valid_records[0]
+#                 if not header_details:
+#                     header_details = {
+#                         "form": reported_ebitda.get("form", "N/A"),
+#                         "fy": reported_ebitda.get("fy", "N/A"),
+#                         "fp": reported_ebitda.get("fp", "N/A"),
+#                         "end": reported_ebitda.get("end", "N/A")
+#                     }
+#                 break
+#         except KeyError:
+#             continue
 
-    # Calculate Gross Margin as a percentage if not directly available
-    gross_profit = next((result[1] for result in results if result[0] == "Gross Margin"), None)
-    net_sales = next((result[1] for result in results if result[0] == "Net Sales"), None)
+#     # Fetch other main metrics
+#     for label, possible_keys in metrics.items():
+#         if label == "EBITDA":
+#             continue  # skip, already handled above
+#         most_recent = None
+#         for key in possible_keys:
+#             try:
+#                 records = data["facts"]["us-gaap"][key]["units"]["USD"]
+#                 valid_records = [r for r in records if r.get("form") in ["10-K", "10-Q"] and "end" in r]
+#                 if not valid_records:
+#                     continue
+#                 valid_records.sort(key=lambda x: x["end"], reverse=True)
+#                 most_recent = valid_records[0]
+#                 break
+#             except KeyError:
+#                 continue
 
-    if gross_profit and net_sales:
-        try:
-            gross_margin = (gross_profit / net_sales) * 100
-            results.append(("Gross Margin", f"{gross_margin:.2f}%"))
-        except ZeroDivisionError:
-            results.append(("Gross Margin", "N/A"))
+#         if most_recent:
+#             if not header_details:
+#                 header_details = {
+#                     "form": most_recent.get("form", "N/A"),
+#                     "fy": most_recent.get("fy", "N/A"),
+#                     "fp": most_recent.get("fp", "N/A"),
+#                     "end": most_recent.get("end", "N/A")
+#                 }
+#             results.append((label, most_recent.get("val")))
+#         else:
+#             results.append((label, "N/A"))
 
-    # Display header line
-    if header_details:
-        print(f"\n\n==============================")
-        print(f"{name} | CIK: {cik_padded} | {header_details['form']} | FY: {header_details['fy']} | Period: {header_details['fp']} | End: {header_details['end']}")
-        print(f"==============================")
-        for label, val in results:
-            val_str = f"${val:,.0f}" if isinstance(val, (int, float)) else val
-            print(f"{label}: {val_str}")
+#     # Handle EBITDA: use reported or estimate it
+#     if reported_ebitda:
+#         results.append(("Reported EBITDA", reported_ebitda.get("val")))
+#     else:
+#         # Try estimating EBITDA
+#         ebitda_vals = {}
+#         for label, possible_keys in ebitda_components.items():
+#             most_recent = None
+#             for key in possible_keys:
+#                 try:
+#                     records = data["facts"]["us-gaap"][key]["units"]["USD"]
+#                     valid_records = [r for r in records if r.get("form") in ["10-K", "10-Q"] and "end" in r]
+#                     if not valid_records:
+#                         continue
+#                     valid_records.sort(key=lambda x: x["end"], reverse=True)
+#                     most_recent = valid_records[0]
+#                     break
+#                 except KeyError:
+#                     continue
+#             if most_recent:
+#                 ebitda_vals[label] = most_recent.get("val")
+
+#         # Calculate estimated EBITDA (Note: see readME for how EBITDA has been handled and why)
+#         required_parts = ["Net Income", "Interest", "Taxes", "Depreciation", "Amortization"]
+#         if all(part in ebitda_vals for part in required_parts):
+#             estimated_ebitda = sum(ebitda_vals[part] for part in required_parts)
+#             results.append(("Estimated EBITDA", estimated_ebitda))
+#         else:
+#             results.append(("Estimated EBITDA", "N/A"))
+
+#     # Calculate Gross Margin as a percentage if not directly available
+#     gross_profit = next((result[1] for result in results if result[0] == "Gross Margin"), None)
+#     net_sales = next((result[1] for result in results if result[0] == "Net Sales"), None)
+
+#     if gross_profit and net_sales:
+#         try:
+#             gross_margin = (gross_profit / net_sales) * 100
+#             results.append(("Gross Margin", f"{gross_margin:.2f}%"))
+#         except ZeroDivisionError:
+#             results.append(("Gross Margin", "N/A"))
+
+#     # Display header line
+#     if header_details:
+#         print(f"\n\n==============================")
+#         print(f"{name} | CIK: {cik_padded} | {header_details['form']} | FY: {header_details['fy']} | Period: {header_details['fp']} | End: {header_details['end']}")
+#         print(f"==============================")
+#         for label, val in results:
+#             val_str = f"${val:,.0f}" if isinstance(val, (int, float)) else val
+#             print(f"{label}: {val_str}")
