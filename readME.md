@@ -1,4 +1,3 @@
-Absolutely — here’s the **complete `README.md` content**, perfectly formatted to paste directly into a Markdown file or a terminal that supports Markdown rendering:
 
 ---
 
@@ -95,9 +94,8 @@ We compare companies using their **most recent SEC filings**, regardless of fisc
 
 ---
 
-```
 
-Let me know if you’d like this saved into a file or adapted for Jupyter, Notion, or a portfolio site.
-```
+https://github.com/user-attachments/assets/7a2ac980-1004-40d8-bc28-75a8ee6a81bc
+
 
 
