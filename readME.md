@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Here is the final **README in full Markdown format**, with the **code snippets removed** from the end, while keeping the plain-English explanations of each financial metric:
 
 ````markdown
@@ -133,3 +134,81 @@ Action: If others have better margins, explore price increases or cost savings; 
 4. Cash Flow Risk Monitoring
 Insight: Spot competitors with strong EBITDA but weak or negative operating cash flow
 Action: These firms may be unstable — capture their customers, recruit their laid-off staff, or prepare to acquire assets if they go under
+=======
+
+# Dependancies
+
+# pip install requests, xlwings & msal
+
+
+# ===============================================
+# EBITDA Handling Logic
+# ===============================================
+# If "EBITDA" is directly reported (via the
+# EarningsBeforeInterestTaxesDepreciationAndAmortization tag
+# in SEC filings), we use that value.
+#
+# If it's not reported, we estimate EBITDA using the
+# standard formula:
+#
+#     EBITDA = Net Income
+#            + Interest
+#            + Taxes
+#            + Depreciation
+#            + Amortization
+#
+#       (more at bottom)
+#
+#
+
+
+# We do NOT use Adjusted EBITDA, because:
+# - Adjusted EBITDA is often calculated with additional
+#   custom adjustments (e.g., stock compensation,
+#   restructuring costs, etc.)
+# - These adjustments vary by company and are not standardized
+#   in the SEC’s US-GAAP taxonomy
+# - Adjusted values are often only available in press releases
+#   or investor presentations, not in machine-readable XBRL data
+
+
+# ===============================================
+Configuration Notes:
+# ===============================================
+if the program stops working:
+
+-resave the same excel file to same location (Overwrite)
+
+-Make sure file isn't being accessed by other programs
+
+-Multiple Excel windows could affect VBA program in an unexpected way, close them
+
+
+Test above scenarios and find a way to not have to resave file or have a script to resave itself in the VBA code
+
+How I fixed main issue:
+The file could not be found and I would need to overwrite (save as again) for it to work, but thats because Python couldnt find it using the path I put into the script but since It was in same project file, when i saved-as python could read it without needing the absolute path. Abslute path is better.
+
+# ===============================================
+Calculation Notes
+# ===============================================
+Q4 can be found by the following logic: Annual - Q3 - Q2 - Q1 = Q4
+Gross Margin is rounded to nearest integer
+
+Net Cashflow from operations = Net cash used in operating activities
+
+
+Calculations of EBITDA could also be:(for verification)
+ EBITDA = Net Sales
+       – Operating Expenses (excluding D&A)
+
+# ===============================================
+Assumptions
+# ===============================================
+We assume comparing the best way is to use the most recent SEC filings from each company rather than aligning by fiscal quarter,
+because our dashboard is updated quarterly with new data.
+This approach ensures we're comparing performance across similar calendar windows,
+even though companies may operate on different fiscal calendars.
+
+
+>>>>>>> 92e0057419c1f898e9303b703267ae46c50624ac
