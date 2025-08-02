@@ -1,7 +1,5 @@
-<<<<<<< HEAD
-Here is the final **README in full Markdown format**, with the **code snippets removed** from the end, while keeping the plain-English explanations of each financial metric:
 
-````markdown
+
 # 📈 SEC Filing EBITDA Extractor & Excel Automation
 
 Automates extraction or estimation of EBITDA from SEC filings and writes results to Excel using Python and VBA.
@@ -101,14 +99,16 @@ We compare companies using their **most recent SEC filings**, regardless of fisc
 
 ### Why?
 
-* Keeps comparisons fresh and aligned to the same time periods
-* Ensures data consistency for dashboards updated quarterly
+* Ensures comparisons are across similar calendar windows
+* Keeps analysis consistent and fresh
+* Designed for Quarterly & Annual Reports
+
 
 ---
 
 ## 🧠 What Do These Metrics Mean?
 
-Net Sales → topline growth
+Net Sales → how much we are earning
 
 Gross Profit → production efficiency
 
@@ -119,6 +119,7 @@ SG&A → overhead efficiency
 Net Cash from Ops → true financial strength
 
 # Usefuleness
+
 1. Acquisition Targeting
 Insight: Find companies with declining revenue but strong EBITDA or cash flow
 Action: Flag as potential acquisition targets — cost-cutting and growth opportunities
@@ -211,4 +212,5 @@ This approach ensures we're comparing performance across similar calendar window
 even though companies may operate on different fiscal calendars.
 
 
->>>>>>> 92e0057419c1f898e9303b703267ae46c50624ac
+https://github.com/user-attachments/assets/7a2ac980-1004-40d8-bc28-75a8ee6a81bc
+
