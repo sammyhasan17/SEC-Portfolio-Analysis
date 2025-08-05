@@ -137,75 +137,61 @@ Insight: Spot competitors with strong EBITDA but weak or negative operating cash
 Action: These firms may be unstable — capture their customers, recruit their laid-off staff, or prepare to acquire assets if they go under
 =======
 
-# Dependancies
+Dependencies
+Install the required libraries:
 
-# pip install requests, xlwings & msal
+bash
+Copy
+Edit
+pip install requests xlwings msal
+EBITDA Handling Logic
+If EBITDA is directly reported (via the EarningsBeforeInterestTaxesDepreciationAndAmortization tag in SEC filings), we use that value.
 
+If it's not reported, we estimate EBITDA using the standard formula:
 
-# ===============================================
-# EBITDA Handling Logic
-# ===============================================
-# If "EBITDA" is directly reported (via the
-# EarningsBeforeInterestTaxesDepreciationAndAmortization tag
-# in SEC filings), we use that value.
-#
-# If it's not reported, we estimate EBITDA using the
-# standard formula:
-#
-#     EBITDA = Net Income
-#            + Interest
-#            + Taxes
-#            + Depreciation
-#            + Amortization
-#
-#       (more at bottom)
-#
-#
+markdown
+Copy
+Edit
+EBITDA = Net Income
+       + Interest
+       + Taxes
+       + Depreciation
+       + Amortization
+We do not use Adjusted EBITDA because:
 
+Adjusted EBITDA includes non-standard, company-specific adjustments (e.g., stock compensation, restructuring costs).
 
-# We do NOT use Adjusted EBITDA, because:
-# - Adjusted EBITDA is often calculated with additional
-#   custom adjustments (e.g., stock compensation,
-#   restructuring costs, etc.)
-# - These adjustments vary by company and are not standardized
-#   in the SEC’s US-GAAP taxonomy
-# - Adjusted values are often only available in press releases
-#   or investor presentations, not in machine-readable XBRL data
+These adjustments are not standardized in the SEC’s US-GAAP taxonomy.
 
+Adjusted EBITDA is often only found in press releases or investor presentations, not in machine-readable XBRL data.
 
-# ===============================================
-Configuration Notes:
-# ===============================================
-if the program stops working:
+Configuration Notes
+If the program stops working:
 
--resave the same excel file to same location (Overwrite)
+Resave (overwrite) the Excel file to the same location.
 
--Make sure file isn't being accessed by other programs
+Ensure the file isn’t being accessed by other programs.
 
--Multiple Excel windows could affect VBA program in an unexpected way, close them
+Close multiple Excel windows, as they may affect VBA behavior.
 
+Suggested fix for recurring issues:
 
-Test above scenarios and find a way to not have to resave file or have a script to resave itself in the VBA code
+The file might not be found because Python cannot resolve the path. When the file is saved within the project directory, Python can access it without needing the absolute path. However, using an absolute path is recommended for reliability.
 
-How I fixed main issue:
-The file could not be found and I would need to overwrite (save as again) for it to work, but thats because Python couldnt find it using the path I put into the script but since It was in same project file, when i saved-as python could read it without needing the absolute path. Abslute path is better.
-
-# ===============================================
 Calculation Notes
-# ===============================================
-Q4 can be found by the following logic: Annual - Q3 - Q2 - Q1 = Q4
-Gross Margin is rounded to nearest integer
+Q4 Calculation:
+Q4 = Annual - Q1 - Q2 - Q3
 
-Net Cashflow from operations = Net cash used in operating activities
+Gross Margin is rounded to the nearest integer.
 
+Net Cash Flow from Operations corresponds to
+Net cash used in operating activities.
 
-Calculations of EBITDA could also be:(for verification)
- EBITDA = Net Sales
-       – Operating Expenses (excluding D&A)
+Alternate EBITDA Calculation (for verification):
+EBITDA = Net Sales – Operating Expenses (excluding D&A)
 
-# ===============================================
 Assumptions
-# ===============================================
+We assume it's best to compare companies using their most recent SEC filings, rather than aligning by fiscal quarter. Our dashboard updates quarterly, so comparing performance across the most recent calendar windows ensures a consistent and timely view—despite different fiscal calendars across companies.
 We assume comparing the best way is to use the most recent SEC filings from each company rather than aligning by fiscal quarter,
 because our dashboard is updated quarterly with new data.
 This approach ensures we're comparing performance across similar calendar windows,
