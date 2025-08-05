@@ -52,7 +52,7 @@ EBITDA = Net Sales
 ## ❌ Why We Do NOT Use Adjusted EBITDA
 
 * Adjusted EBITDA includes custom, non-standard company-specific adjustments (e.g., stock-based compensation, restructuring)
-* These adjustments are inconsistent across companies
+* These adjustments are not standardized in the SEC’s US-GAAP taxonomy.
 * Not reported in machine-readable XBRL data — typically only available in press releases or presentations
 
 ---
@@ -157,46 +157,20 @@ EBITDA = Net Income
        + Taxes
        + Depreciation
        + Amortization
-We do not use Adjusted EBITDA because:
 
-Adjusted EBITDA includes non-standard, company-specific adjustments (e.g., stock compensation, restructuring costs).
 
-These adjustments are not standardized in the SEC’s US-GAAP taxonomy.
 
-Adjusted EBITDA is often only found in press releases or investor presentations, not in machine-readable XBRL data.
+Net Cash Flow from Operations corresponds to "Net cash used in operating activities" on SEC Filings
 
-Configuration Notes
-If the program stops working:
 
-Resave (overwrite) the Excel file to the same location.
 
-Ensure the file isn’t being accessed by other programs.
-
-Close multiple Excel windows, as they may affect VBA behavior.
-
-Suggested fix for recurring issues:
-
-The file might not be found because Python cannot resolve the path. When the file is saved within the project directory, Python can access it without needing the absolute path. However, using an absolute path is recommended for reliability.
-
-Calculation Notes
-Q4 Calculation:
-Q4 = Annual - Q1 - Q2 - Q3
-
-Gross Margin is rounded to the nearest integer.
-
-Net Cash Flow from Operations corresponds to
-Net cash used in operating activities.
-
-Alternate EBITDA Calculation (for verification):
-EBITDA = Net Sales – Operating Expenses (excluding D&A)
-
-Assumptions
+# Assumptions
 We assume it's best to compare companies using their most recent SEC filings, rather than aligning by fiscal quarter. Our dashboard updates quarterly, so comparing performance across the most recent calendar windows ensures a consistent and timely view—despite different fiscal calendars across companies.
 We assume comparing the best way is to use the most recent SEC filings from each company rather than aligning by fiscal quarter,
 because our dashboard is updated quarterly with new data.
 This approach ensures we're comparing performance across similar calendar windows,
 even though companies may operate on different fiscal calendars.
 
-
+# Demo
 https://github.com/user-attachments/assets/7a2ac980-1004-40d8-bc28-75a8ee6a81bc
 
