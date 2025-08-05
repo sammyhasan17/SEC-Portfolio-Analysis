@@ -118,7 +118,7 @@ SG&A → overhead efficiency
 
 Net Cash from Ops → true financial strength
 
-# Usefuleness
+# Why is this useful?
 
 1. Acquisition Targeting
 Insight: Find companies with declining revenue but strong EBITDA or cash flow
