@@ -135,33 +135,9 @@ Action: If others have better margins, explore price increases or cost savings; 
 4. Cash Flow Risk Monitoring
 Insight: Spot competitors with strong EBITDA but weak or negative operating cash flow
 Action: These firms may be unstable — capture their customers, recruit their laid-off staff, or prepare to acquire assets if they go under
-=======
-
-Dependencies
-Install the required libraries:
-
-bash
-Copy
-Edit
-pip install requests xlwings msal
-EBITDA Handling Logic
-If EBITDA is directly reported (via the EarningsBeforeInterestTaxesDepreciationAndAmortization tag in SEC filings), we use that value.
-
-If it's not reported, we estimate EBITDA using the standard formula:
-
-markdown
-Copy
-Edit
-EBITDA = Net Income
-       + Interest
-       + Taxes
-       + Depreciation
-       + Amortization
-
 
 
 Net Cash Flow from Operations corresponds to "Net cash used in operating activities" on SEC Filings
-
 
 
 # Assumptions
