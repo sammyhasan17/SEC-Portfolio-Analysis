@@ -2,7 +2,7 @@
 
 # 📈 SEC Filing EBITDA Extractor & Excel Automation
 
-Automates extraction or estimation of EBITDA from SEC filings and writes results to Excel using Python and VBA.
+Automates data extraction from SEC filings and writes results to Excel & PowerBi Dashboard using Python and VBA
 
 ---
 
