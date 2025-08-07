@@ -1,6 +1,6 @@
 
 
-# 📈 SEC Filing EBITDA Extractor & Excel Automation
+# 📈 SEC Filing Line Item Extractor & Dashboard Automation
 
 Automates data extraction from SEC filings and writes results to Excel & PowerBI Dashboard using Python and VBA to make CEO decisions
 
