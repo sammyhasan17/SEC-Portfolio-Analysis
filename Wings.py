@@ -5,14 +5,26 @@ import msal
 
 # Company name and CIK mapping
 company_map = {
-    "0000077360": "PENTAIR plc (PNR)",
-    "0000945841": "POOL CORP (POOL)",
-    "0000091142": "SMITH A O CORP (AOS)",
-    "0000795403": "WATTS WATER TECHNOLOGIES INC (WTS)",
-    "0001834622": "Hayward Holdings, Inc. (HAYW)",
-    "0001833197": "Latham Group, Inc. (SWIM)",
-    "0001821806": "Leslie's, Inc. (LESL)"
+    "0000732717": "AT&T (T)",                     # Telecommunications & media
+    "0000354950": "HOME DEPOT INC. (HD)",         # Retail - home improvement & building materials
+    "0001318605": "Tesla Inc. (TSLA)",            # Automobiles & clean energy
+    "0000936468": "Lockheed (LKH)",               # Aerospace & defense
+    "0001045810": "NVIDIA (NVDA)",                # Semiconductors - GPUs & AI hardware
+    "0000320187": "NIKE (NKE)",                   # Consumer goods - apparel & footwear
+    "0000320193": "Apple (AAPL)",                 # Consumer electronics & software
+    "0000789019": "Intel Corp. (INTC)",           # Semiconductors
+    "0000104169": "Caterpillar Inc. (CAT)",       # Heavy machinery
+    "0000815097": "3M Company (MMM)",             # Industrial & materials
+    "0000021344": "General Electric (GE)",        # Diversified manufacturing
+    "0000018230": "Ford Motor Co. (F)",           # Automobiles
+    "0000051143": "Boeing (BA)",                  # Aerospace
+    "0000066740": "General Motors (GM)",          # Automobiles
+    "0001467858": "Honeywell (HON)",              # Industrial tech & systems
+    "0000040533": "Johnson Controls (JCI)",       # Building systems & equipment
+    "0000002488": "Advanced Micro Devices (AMD)"  # Semiconductors - CPUs & GPUs
 }
+
+
 
 # US-GAAP keys to search for each metric
 metrics = {
