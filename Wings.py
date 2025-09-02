@@ -20,7 +20,6 @@ company_map = {
     "0000051143": "Boeing (BA)",                  # Aerospace
     "0000066740": "General Motors (GM)",          # Automobiles
     "0001467858": "Honeywell (HON)",              # Industrial tech & systems
-    "0000040533": "Johnson Controls (JCI)",       # Building systems & equipment
     "0000002488": "Advanced Micro Devices (AMD)"  # Semiconductors - CPUs & GPUs
 }
 
