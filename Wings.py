@@ -168,8 +168,10 @@ for cik in company_map:
             val_str = val
         print(f"{label}: {val_str}")
 
+
     # Open the Excel workbook
     wk = xw.books.open(r'C:\Users\Sammy\OneDrive\Documents\GitHub\SEC-to-EXCEL\ticker_file.xlsm')
+
 
     # Select the 'Data' sheet
     sheet = wk.sheets('Data')
@@ -202,4 +204,28 @@ print('####################')
 print('Program completed')
 print('####################')
 
+# ---- Build a transposed table row for Excel / Power BI ----
+row_data = {
+    "Company": name,
+    "CIK": cik_padded,
+    "Form": header_details.get("form", "N/A"),
+    "FY": header_details.get("fy", "N/A"),
+    "Period": header_details.get("fp", "N/A"),
+    "End Date": header_details.get("end", "N/A")
+}
 
+# Add the metrics as columns
+for label, val in results:
+    if isinstance(val, (int, float)):
+        val_str = f"{val:.0f}%" if "Margin" in label else f"{val:,.0f}"
+    else:
+        val_str = val
+    row_data[label] = val_str
+
+# For now: print the transposed version as a table row
+print("\n-- Transposed Row --")
+for k, v in row_data.items():
+    print(f"{k}: {v}")
+
+# Optionally: collect for later use (Excel, CSV, Power BI)
+all_company_data[name] = row_data
