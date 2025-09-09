@@ -203,29 +203,70 @@ for cik in company_map:
 print('####################')
 print('Program completed')
 print('####################')
+print('\n')
 
-# ---- Build a transposed table row for Excel / Power BI ----
-row_data = {
-    "Company": name,
-    "CIK": cik_padded,
-    "Form": header_details.get("form", "N/A"),
-    "FY": header_details.get("fy", "N/A"),
-    "Period": header_details.get("fp", "N/A"),
-    "End Date": header_details.get("end", "N/A")
-}
+# # # ---------- BEGIN: write transposed row for Power BI (no pandas) ----------
+# # Select the 'Data' sheet
+# sheet2= wk.sheets('PowerBI_Data')
+# start_row = 1
+# start_col = 1  # Column A
 
-# Add the metrics as columns
+# # testing
+# sheet2['A1'].value = "hello world"
+# sheet2['A1'].value
+
+# # print header on sheet2
+# if header_details:
+# # Print a header for this company's data in excel
+    
+#     print(f"{name} | CIK: {cik_padded} | {header_details['form']} | FY: {header_details['fy']} | Period: {header_details['fp']} | End: {header_details['end']}")
+    
+
+# # Print each metric and its value in the console
+# for label, val in results:
+#     if isinstance(val, (int, float)):
+#         val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
+#     else:
+#         val_str = val
+#     print(f"{label}: {val_str}")
+# # Write each metric and its value to the sheet, one per row
+
+
+# ---------- Write transposed row to 'PowerBI_Data' (headers across row 1) ----------
+
+# 0) Get/create the destination sheet
+try:
+    sheet2 = wk.sheets['PowerBI_Data']
+except Exception:
+    sheet2 = wk.sheets.add('PowerBI_Data', after=wk.sheets[-1])
+
+# 1) Define the header labels (left to right on row 1)
+headers = [
+    "Company","Form","FY","Period","End Date",
+    "Net Sales","Gross Profit","SG&A","Net Cashflow from Operations",
+    "Reported EBITDA","Estimated EBITDA","Gross Margin (%)"
+]
+
+sheet2.range("A1").value = [headers]   # <- writes horizontally across row 1
+
+# # 5) Find next row and write the values in one shot (aligned to headers)
+# last_row = sheet2.range("A" + str(sheet2.cells.last_cell.row)).end('up').row
+# next_row = 2 if last_row < 2 else last_row + 1
+# sheet2.range((next_row, 1)).value = [headers]  # <- writes across the row
+
+# # 6) (Optional) Make it a proper Excel Table the first time
+# try:
+#     _ = sheet2.api.ListObjects("PowerBI_Data_tbl")
+# except Exception:
+#     used = sheet2.range("A1").expand()
+#     sheet2.api.ListObjects.Add(1, used.api, None, 1).Name = "PowerBI_Data_tbl"
+# # -------------------------------------------------------------------------------
+
+# Write each metric and its value to the sheet, one per row
 for label, val in results:
     if isinstance(val, (int, float)):
-        val_str = f"{val:.0f}%" if "Margin" in label else f"{val:,.0f}"
+        val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
     else:
         val_str = val
-    row_data[label] = val_str
-
-# For now: print the transposed version as a table row
-print("\n-- Transposed Row --")
-for k, v in row_data.items():
-    print(f"{k}: {v}")
-
-# Optionally: collect for later use (Excel, CSV, Power BI)
-all_company_data[name] = row_data
+    sheet.range((write_row, start_col)).value = [label, val_str]
+    write_row += 1
