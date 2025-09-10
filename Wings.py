@@ -1,6 +1,5 @@
 import requests
 import xlwings as xw
-import msal
 
 
 # Company name and CIK mapping
@@ -45,7 +44,7 @@ ebitda_components = {
 
 headers = {"User-Agent": "Sam Hasan sam@example.com"}
 
-all_company_data = {}
+all_company_data = []
 # main loop
 for cik in company_map:
     cik_padded = cik.zfill(10)
@@ -162,11 +161,42 @@ for cik in company_map:
     
     # Print each metric and its value in the console
     for label, val in results:
+
+        # FORMATTING LOGIC
         if isinstance(val, (int, float)):
             val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
         else:
             val_str = val
+            # Print to console
         print(f"{label}: {val_str}")
+
+
+        ###############################################################
+        #  POPULATE DATA STRCUTURE FOR OUR DATA TO TRANSPOSE LATER   #
+        ###############################################################
+        
+        # testing global variable
+        # Build a row dict for this company
+    row_dict = {
+        "Company": name,
+        "CIK": cik_padded,
+        "Form": header_details.get("form", "N/A"),
+        "FY": header_details.get("fy", "N/A"),
+        "Period": header_details.get("fp", "N/A"),
+        "End Date": header_details.get("end", "N/A"),
+    }
+
+    # add metrics from results
+    for label, val in results:
+        row_dict[label] = val
+
+
+    # append to global list
+    all_company_data.append(row_dict)
+    # could we optimze this so we could re-use results list?
+
+
+
 
 
     # Open the Excel workbook
@@ -190,6 +220,8 @@ for cik in company_map:
 
     # Write each metric and its value to the sheet, one per row
     for label, val in results:
+        # add it to a global list
+
         if isinstance(val, (int, float)):
             val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
         else:
@@ -197,40 +229,14 @@ for cik in company_map:
         sheet.range((write_row, start_col)).value = [label, val_str]
         write_row += 1
 
-# success output
 
+
+# success output
 
 print('####################')
 print('Program completed')
 print('####################')
 print('\n')
-
-# # # ---------- BEGIN: write transposed row for Power BI (no pandas) ----------
-# # Select the 'Data' sheet
-# sheet2= wk.sheets('PowerBI_Data')
-# start_row = 1
-# start_col = 1  # Column A
-
-# # testing
-# sheet2['A1'].value = "hello world"
-# sheet2['A1'].value
-
-# # print header on sheet2
-# if header_details:
-# # Print a header for this company's data in excel
-    
-#     print(f"{name} | CIK: {cik_padded} | {header_details['form']} | FY: {header_details['fy']} | Period: {header_details['fp']} | End: {header_details['end']}")
-    
-
-# # Print each metric and its value in the console
-# for label, val in results:
-#     if isinstance(val, (int, float)):
-#         val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
-#     else:
-#         val_str = val
-#     print(f"{label}: {val_str}")
-# # Write each metric and its value to the sheet, one per row
-
 
 # ---------- Write transposed row to 'PowerBI_Data' (headers across row 1) ----------
 
@@ -241,32 +247,59 @@ except Exception:
     sheet2 = wk.sheets.add('PowerBI_Data', after=wk.sheets[-1])
 
 # 1) Define the header labels (left to right on row 1)
-headers = [
-    "Company","Form","FY","Period","End Date",
-    "Net Sales","Gross Profit","SG&A","Net Cashflow from Operations",
-    "Reported EBITDA","Estimated EBITDA","Gross Margin (%)"
-]
+# headers = [
+#     "Company","Form","FY","Period","End Date",
+#     "Net Sales","Gross Profit","SG&A","Net Cashflow from Operations",
+#     "Reported EBITDA","Estimated EBITDA","Gross Margin (%)"
+# ]
 
-sheet2.range("A1").value = [headers]   # <- writes horizontally across row 1
-
-# # 5) Find next row and write the values in one shot (aligned to headers)
-# last_row = sheet2.range("A" + str(sheet2.cells.last_cell.row)).end('up').row
-# next_row = 2 if last_row < 2 else last_row + 1
-# sheet2.range((next_row, 1)).value = [headers]  # <- writes across the row
-
-# # 6) (Optional) Make it a proper Excel Table the first time
-# try:
-#     _ = sheet2.api.ListObjects("PowerBI_Data_tbl")
-# except Exception:
-#     used = sheet2.range("A1").expand()
-#     sheet2.api.ListObjects.Add(1, used.api, None, 1).Name = "PowerBI_Data_tbl"
-# # -------------------------------------------------------------------------------
+# sheet2.range("A1").value = [headers]   # <- writes horizontally across row 1
 
 # Write each metric and its value to the sheet, one per row
-for label, val in results:
-    if isinstance(val, (int, float)):
-        val_str = f"{val:.0f}%" if "Margin" in label else f"${val:,.0f}"
-    else:
-        val_str = val
-    sheet.range((write_row, start_col)).value = [label, val_str]
-    write_row += 1
+print(all_company_data)
+print("\n")
+
+
+import csv
+import sys
+
+headers = list(all_company_data[0].keys())
+writer = csv.DictWriter(sys.stdout, fieldnames=headers)
+writer.writeheader()
+writer.writerows(all_company_data)
+
+# Select the 'Data' sheet
+sheet = wk.sheets('PowerBI_Data')
+start_row = 1
+start_col = 1  # Column A
+
+# sheet2['A1'].value = "hello world"
+
+# sheet2['A1'].value = all_company_data # it could be a list
+
+# Define column order explicitly so Excel columns are consistent
+headers = [
+    "Company","CIK","Form","FY","Period","End Date",
+    "Net Sales","Gross Profit","SG&A","Net Cashflow from Operations",
+    "Estimated EBITDA","Gross Margin (%)"
+]
+# Write headers into the first row of the sheet (A1 → across to the right).
+# Wrapping headers in [ ... ] makes xlwings treat it as a single row instead of a column.
+sheet2['A1'].value = [headers]   # row of headers
+
+# Create an empty list that will hold each company's data row
+rows = []
+
+# Loop through every company dictionary in all_company_data
+for company in all_company_data:
+    # Build a row list following the exact header order
+    # row_dict.get(col, "N/A") → get the value for header col,
+    # if missing, put "N/A" instead so all rows have same length
+    row = [company.get(col, "N/A") for col in headers]
+    
+    # Add this row to the rows list
+    rows.append(row)
+
+# Write all rows to Excel starting at A2 (below headers).
+# xlwings will expand this 2D list into multiple rows/columns automatically.
+sheet2['A2'].value = rows
