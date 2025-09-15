@@ -303,3 +303,4 @@ for company in all_company_data:
 # Write all rows to Excel starting at A2 (below headers).
 # xlwings will expand this 2D list into multiple rows/columns automatically.
 sheet2['A2'].value = rows
+# test
