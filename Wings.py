@@ -262,6 +262,7 @@ print("\n")
 
 import csv
 import sys
+import requests
 
 headers = list(all_company_data[0].keys())
 writer = csv.DictWriter(sys.stdout, fieldnames=headers)
@@ -303,4 +304,16 @@ for company in all_company_data:
 # Write all rows to Excel starting at A2 (below headers).
 # xlwings will expand this 2D list into multiple rows/columns automatically.
 sheet2['A2'].value = rows
-# test 1
+
+
+
+
+
+# ========================================================================
+# 🔗 PUSH DATA TO POWER BI (REST API / Azure AD (Azure Active Directory) & Authentication with MSAL)
+# ========================================================================
+
+# Python script → Azure AD (Azure Active Directory) → Access Token → Power BI REST API (datasets/reports/refresh) 
+import msal # Microsfot Authentication Library
+
+# test
