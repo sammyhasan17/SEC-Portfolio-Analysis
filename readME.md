@@ -6,8 +6,7 @@ Automates extraction or estimation of EBITDA from SEC filings and writes results
 
 ---
 ## 📊 Flowchart 
-
-<img src="Flowchart_ Automated SEC Dashboard.pdf.png" width="250" height="250">
+<img src="flow.png" alt="Flowchart Automated SEC Dashboard" height = "400" width="600"/>
 
 ## 📦 Dependencies
 
