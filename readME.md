@@ -5,6 +5,10 @@
 Automates extraction or estimation of EBITDA from SEC filings and writes results to Excel using Python and VBA.
 
 ---
+## 📊 Flowchart 
+
+![Flowchart Automated SEC Dashboard](flowchart.png)
+
 
 ## 📦 Dependencies
 
