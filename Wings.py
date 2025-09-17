@@ -316,4 +316,94 @@ sheet2['A2'].value = rows
 # Python script → Azure AD (Azure Active Directory) → Access Token → Power BI REST API (datasets/reports/refresh) 
 import msal # Microsfot Authentication Library
 
-# test
+# set up our .ENV file & loading env variables
+from dotenv import load_dotenv
+import os
+# env variables
+load_dotenv()
+
+# defining our credentials
+TENANT_ID = "aba21ed8-6044-4926-826d-5c9eb6d37ead" # Tenant ID → tells Azure which organization directory the app belongs to.
+CLIENT_ID = "c8e887ce-d043-4928-aad1-0e0baf3d4c6d" # Client ID → the username of your app.
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")  # Client Secret VALUE → the password of your app.
+
+AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
+
+SCOPE = ["https://analysis.windows.net/powerbi/api/.default"]
+
+# creating an app variable
+app = msal.ConfidentialClientApplication(
+    CLIENT_ID, authority=AUTHORITY, client_credential=CLIENT_SECRET
+)
+
+
+token = app.acquire_token_for_client(scopes=SCOPE)
+
+if "access_token" in token:
+    access_token = token["access_token"]
+    # Print only first/last 30 chars to confirm
+    print("✅ Got token:")
+    print(access_token[:30] + "..." + access_token[-30:])
+else:
+    print("❌ Failed to get token:", token.get("error_description", token))
+
+# =============================================================================
+# 🚀 CREATE NEW DATASET IN POWER BI SERVICE (via REST API + Access Token)
+# =============================================================================
+# This script:
+# 1. Uses your Azure AD access token (from MSAL) to authenticate.
+# 2. Creates a new push dataset inside the specified Power BI workspace.
+# 3. Defines a table schema ("SalesTable" with Name + Sales columns).
+# 
+# After running:
+# - You’ll see "PythonDataset" appear in your Power BI Service workspace.
+# - Reports in Power BI Service can now connect to this dataset.
+# - Rows can be pushed into this dataset using the Push Rows API.
+# =============================================================================
+
+import requests
+
+workspace_id = "4be12a96-fc3d-4ec3-b048-6feefac3f861"
+dataset_name = "PythonDataset"
+
+url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
+headers = {
+    "Authorization": f"Bearer {access_token}",
+    "Content-Type": "application/json"
+}
+
+# SBuild schema from your header list
+columns = []
+
+for col in headers:
+    # Decide datatype: numbers vs strings
+    if col in ["FY", "Net Sales", "Gross Profit", "SG&A", 
+               "Net Cashflow from Operations", "Estimated EBITDA", "Gross Margin (%)"]:
+        dtype = "Int64"
+    else:
+        dtype = "string"
+    columns.append({"name": col, "dataType": dtype})
+
+payload = {
+    "name": "SECDataset",         # Name of your dataset
+    "defaultMode": "Push",        # How data gets loaded (push = via API instead of a static file)
+    "tables": [                   # A list of tables inside this dataset
+        {
+            "name": "CompanyData",    # Table name inside the dataset
+            "columns": columns        # List of column definitions (dicts) that describe schema
+        }
+    ]
+}
+
+# create the database in PowerBI
+url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
+response = requests.post(url, headers=headers, json=payload)
+print("Create dataset:", response.status_code, response.text)
+
+dataset_id = None
+if response.status_code == 201:
+    dataset_id = response.json()["id"]
+
+print(os.getenv("PATH"))
+print("env variable:")
+print(CLIENT_SECRET)
