@@ -1,5 +1,6 @@
 import requests
 import xlwings as xw
+from datetime import datetime
 
 
 # Company name and CIK mapping
@@ -307,8 +308,6 @@ sheet2['A2'].value = rows
 
 
 
-
-
 # ========================================================================
 # 🔗 PUSH DATA TO POWER BI (REST API / Azure AD (Azure Active Directory) & Authentication with MSAL)
 # ========================================================================
@@ -348,62 +347,132 @@ else:
     print("❌ Failed to get token:", token.get("error_description", token))
 
 # =============================================================================
-# 🚀 CREATE NEW DATASET IN POWER BI SERVICE (via REST API + Access Token)
+# 🚀 CREATE NEW DATASET IN FABRIC (via REST API + Access Token)
 # =============================================================================
 # This script:
 # 1. Uses your Azure AD access token (from MSAL) to authenticate.
 # 2. Creates a new push dataset inside the specified Power BI workspace.
-# 3. Defines a table schema ("SalesTable" with Name + Sales columns).
+# 3. Defines a table schema 
 # 
 # After running:
-# - You’ll see "PythonDataset" appear in your Power BI Service workspace.
+# - You’ll see some "DataSetName" appear in your Power BI Service (Fabric) workspace.
 # - Reports in Power BI Service can now connect to this dataset.
 # - Rows can be pushed into this dataset using the Push Rows API.
 # =============================================================================
 
 import requests
 
-workspace_id = "4be12a96-fc3d-4ec3-b048-6feefac3f861"
+
+workspace_id = "4be12a96-fc3d-4ec3-b048-6feefac3f861"   # Fabric Workspace
 dataset_name = "PythonDataset"
 
 url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
+
+# ✅ Headers must be a dict
 headers = {
-    "Authorization": f"Bearer {access_token}",
+    "Authorization": f"Bearer {access_token}", 
     "Content-Type": "application/json"
 }
 
-# SBuild schema from your header list
-columns = []
+# Example headers list from your schema
+headers_list = ["FY", "Net Sales", "Gross Profit", "SG&A", 
+                "Net Cashflow from Operations", "Estimated EBITDA", "Gross Margin (%)"]
 
-for col in headers:
-    # Decide datatype: numbers vs strings
+# ✅ Build schema - 
+line_items = []
+for col in headers_list:
     if col in ["FY", "Net Sales", "Gross Profit", "SG&A", 
-               "Net Cashflow from Operations", "Estimated EBITDA", "Gross Margin (%)"]:
-        dtype = "Int64"
+               "Net Cashflow from Operations", "Estimated EBITDA"]:
+        dtype = "Int64" # whole numbers
+    elif col == "Gross Margin (%)":
+        dtype = "Double" # decimals
     else:
-        dtype = "string"
-    columns.append({"name": col, "dataType": dtype})
+        dtype = "String"
+    line_items.append({"name": col, "dataType": dtype})
 
+# Auto-name dataset with today's month-day (avoids duplicates)
+#  Add month-day to dataset name
+
+today = datetime.today().strftime("%m-%d")
+dataset_name = f"SECDataset {today}"
+
+# ============================================================================
+#  Build JSON payload for dataset creation
+#
+# "defaultMode": "Push" means rows are inserted via API (not from files)
+# ============================================================================
 payload = {
-    "name": "SECDataset",         # Name of your dataset
-    "defaultMode": "Push",        # How data gets loaded (push = via API instead of a static file)
-    "tables": [                   # A list of tables inside this dataset
+    "name": dataset_name,
+    "defaultMode": "Push",
+    "tables": [
         {
-            "name": "CompanyData",    # Table name inside the dataset
-            "columns": columns        # List of column definitions (dicts) that describe schema
+            "name": "CompanyData",
+            "columns": line_items
         }
     ]
 }
 
-# create the database in PowerBI
-url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
+# ============================================================================
+#  Create dataset in Fabric workspace (via Power BI REST API)
+# ============================================================================
+# - POST request goes to the Power BI REST API endpoint
+# - Authorization header carries your Azure AD access token
+# - Payload is the dataset definition (name + tables + schema)
+# - If successful → API returns status_code 201 and JSON with dataset ID
+# - If failed → status_code + error details help debug (401 = bad token, 
+#   403 = missing permission, 400 = payload problem, etc.)
+# ============================================================================
+
+# ✅ Make request
 response = requests.post(url, headers=headers, json=payload)
 print("Create dataset:", response.status_code, response.text)
 
-dataset_id = None
+# Handle different responses
 if response.status_code == 201:
     dataset_id = response.json()["id"]
+    print(f"✅ Dataset '{dataset_name}' created successfully!")
+    print("   Dataset ID:", dataset_id)
+elif response.status_code == 401:
+    print("❌ Unauthorized (check your access token).")
+elif response.status_code == 403:
+    print("❌ Forbidden (you may not have rights in this workspace).")
+elif response.status_code == 400:
+    print("❌ Bad Request (check payload format / schema).")
+else:
+    print("⚠️ Unexpected error:", response.status_code, response.text)
 
-print(os.getenv("PATH"))
-print("env variable:")
-print(CLIENT_SECRET)
+
+# recap:
+
+# WE SUCCESFULLY HAVE FIELDS BEING LOADED INTO FABRIC BUT WE NEED TO BRING IN RECORDS + MAKE SURE WE ARE ACTUALLY AUTOMATING A DASHBOARD NOT JUST A TABLE
+
+
+# ============================================================================
+#  NEXT STEP: Load actual facts (data rows) into our semantic model
+# ----------------------------------------------------------------------------
+# Right now, we've only created the *structure* (dataset + table + fields).
+# - Think of this as the "blueprint" or "empty table" in Fabric.
+# - Our table "CompanyData" has columns (FY, Net Sales, Gross Profit, etc.).
+#
+# Next, we need to PUSH ROWS (the real financial data) into this dataset
+# using the Power BI REST API:
+#
+#   POST https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/tables/{table_name}/rows
+#
+# Example payload format for inserting rows:
+# {
+#   "rows": [
+#     {
+#       "FY": 2025,
+#       "Net Sales": 360000000,
+#       "Gross Profit": 125000000,
+#       "SG&A": 45000000,
+#       "Net Cashflow from Operations": 80000000,
+#       "Estimated EBITDA": 32000000,
+#       "Gross Margin (%)": 34.7
+#     }
+#   ]
+# }
+#
+
+
