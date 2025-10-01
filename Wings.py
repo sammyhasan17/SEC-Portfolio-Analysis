@@ -24,7 +24,6 @@ company_map = {
 }
 
 
-
 # US-GAAP keys to search for each metric
 metrics = {
     "Net Sales": ["Revenues", "SalesRevenueNet", "RevenueFromContractWithCustomerExcludingAssessedTax"],
@@ -402,8 +401,6 @@ for row in all_company_data:
 
 
         
-
-
 
 # ✅ Build schema - 
 fields = []
