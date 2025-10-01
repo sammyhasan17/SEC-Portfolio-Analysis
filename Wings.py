@@ -257,8 +257,8 @@ except Exception:
 # sheet2.range("A1").value = [headers]   # <- writes horizontally across row 1
 
 # Write each metric and its value to the sheet, one per row
-print(all_company_data)
-print("\n")
+print(all_company_data) # JSON Formatted list
+
 
 
 import csv
@@ -268,7 +268,7 @@ import requests
 headers = list(all_company_data[0].keys())
 writer = csv.DictWriter(sys.stdout, fieldnames=headers)
 writer.writeheader()
-writer.writerows(all_company_data)
+writer.writerows(all_company_data) # CSV Output
 
 # Select the 'Data' sheet
 sheet = wk.sheets('PowerBI_Data')
@@ -364,9 +364,17 @@ import requests
 
 
 workspace_id = "4be12a96-fc3d-4ec3-b048-6feefac3f861"   # Fabric Workspace
-dataset_name = "PythonDataset"
+dataset_name = "PythonDataset" # TODO: change name to something more useful 
+table_name = 'CompanyData'
 
+# url for our structure
 url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets"
+
+
+for row in all_company_data:
+    row.pop("CIK", None)
+
+
 
 # ✅ Headers must be a dict
 headers = {
@@ -375,11 +383,30 @@ headers = {
 }
 
 # Example headers list from your schema
-headers_list = ["FY", "Net Sales", "Gross Profit", "SG&A", 
-                "Net Cashflow from Operations", "Estimated EBITDA", "Gross Margin (%)"]
+headers_list = ["Company","CIK","Form","FY","Period","End Date",
+    "Net Sales","Gross Profit","SG&A","Net Cashflow from Operations",
+    "Estimated EBITDA","Gross Margin (%)"]
+
+# =====================================================================
+# 🧹 Clean Data Before Pushing Into Payload JSON
+#
+# This step ensures our rows_payload is clean and consistent with the
+# dataset schema before sending it to the REST API.
+# =====================================================================
+
+for row in all_company_data:
+    for col in ["Gross Profit", "SG&A", "Net Cashflow from Operations",
+                "Estimated EBITDA", "Gross Margin (%)"]:
+        if row[col] in ["N/A", "", None]:
+            row[col] = None
+
+
+        
+
+
 
 # ✅ Build schema - 
-line_items = []
+fields = []
 for col in headers_list:
     if col in ["FY", "Net Sales", "Gross Profit", "SG&A", 
                "Net Cashflow from Operations", "Estimated EBITDA"]:
@@ -388,7 +415,7 @@ for col in headers_list:
         dtype = "Double" # decimals
     else:
         dtype = "String"
-    line_items.append({"name": col, "dataType": dtype})
+    fields.append({"name": col, "dataType": dtype})
 
 # Auto-name dataset with today's month-day (avoids duplicates)
 #  Add month-day to dataset name
@@ -401,16 +428,24 @@ dataset_name = f"SECDataset {today}"
 #
 # "defaultMode": "Push" means rows are inserted via API (not from files)
 # ============================================================================
+
+
 payload = {
     "name": dataset_name,
     "defaultMode": "Push",
     "tables": [
         {
             "name": "CompanyData",
-            "columns": line_items
+            "columns": fields,
+
         }
     ]
 }
+
+# wrap our data (list of dictionaries) into rows
+rows_payload = {"rows": all_company_data} # { "rows": [ {...}, {...}, {...} ] }
+
+
 
 # ============================================================================
 #  Create dataset in Fabric workspace (via Power BI REST API)
@@ -424,8 +459,9 @@ payload = {
 # ============================================================================
 
 # ✅ Make request
+# fields
 response = requests.post(url, headers=headers, json=payload)
-print("Create dataset:", response.status_code, response.text)
+print("Create Fields:", response.status_code, response.text)
 
 # Handle different responses
 if response.status_code == 201:
@@ -441,38 +477,39 @@ elif response.status_code == 400:
 else:
     print("⚠️ Unexpected error:", response.status_code, response.text)
 
+# get dataset id from response
+dataset_id = response.json()["id"]
+print(dataset_id, "DATASET ID ! ")
+# url for our records
+rows_url  = f'https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/tables/{table_name}/rows'
+
+
+# records
+row_response = requests.post(rows_url,headers=headers, json=rows_payload)
+print("Insert rows:", row_response.status_code, row_response.text)
+
+
+# Handle row responses
+if row_response.status_code == 200:
+    print("✅ Rows inserted successfully!")
+elif row_response.status_code == 400:
+    print("❌ Bad Request (check your row payload, column names, datatypes).")
+elif row_response.status_code == 401:
+    print("❌ Unauthorized (access token invalid/expired).")
+elif row_response.status_code == 403:
+    print("❌ Forbidden (no permission to insert rows in this dataset).")
+elif row_response.status_code == 404:
+    print("❌ Not Found (dataset_id or table_name is wrong).")
+elif row_response.status_code >= 500:
+    print("❌ Server error at Power BI side, try again later.")
+else:
+    print("⚠️ Unexpected rows response:", row_response.status_code, row_response.text)
 
 # recap:
 
-# WE SUCCESFULLY HAVE FIELDS BEING LOADED INTO FABRIC BUT WE NEED TO BRING IN RECORDS + MAKE SURE WE ARE ACTUALLY AUTOMATING A DASHBOARD NOT JUST A TABLE
+# https://chatgpt.com/c/68dc5a8e-02d4-8325-aea7-f13f944b562f
 
 
-# ============================================================================
-#  NEXT STEP: Load actual facts (data rows) into our semantic model
-# ----------------------------------------------------------------------------
-# Right now, we've only created the *structure* (dataset + table + fields).
-# - Think of this as the "blueprint" or "empty table" in Fabric.
-# - Our table "CompanyData" has columns (FY, Net Sales, Gross Profit, etc.).
-#
-# Next, we need to PUSH ROWS (the real financial data) into this dataset
-# using the Power BI REST API:
-#
-#   POST https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/tables/{table_name}/rows
-#
-# Example payload format for inserting rows:
-# {
-#   "rows": [
-#     {
-#       "FY": 2025,
-#       "Net Sales": 360000000,
-#       "Gross Profit": 125000000,
-#       "SG&A": 45000000,
-#       "Net Cashflow from Operations": 80000000,
-#       "Estimated EBITDA": 32000000,
-#       "Gross Margin (%)": 34.7
-#     }
-#   ]
-# }
-#
+# We got records to popoulate in Fabric! now use fabric to make dashboards in the cloud!
 
 

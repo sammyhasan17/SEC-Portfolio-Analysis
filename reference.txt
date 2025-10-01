@@ -1,0 +1,10 @@
+1. Question the requirements
+
+2. Remove unnesessary steps
+
+3. Simplify or optimize
+
+4. Accelerate Cycle Time 
+
+5. Automate
+
