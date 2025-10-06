@@ -528,4 +528,22 @@ else:
     raise RuntimeError(f"Dashboard creation failed: {dash_resp.status_code} {dash_resp.text}")
 
 
-# CREATES TILES THAT BUILD UP OUR DASHBOARD
+
+# ---------------------------------------------------------------------
+# • Q&A tiles   → created by Power BI’s natural-language engine.
+#                 Example: ask “total [Net Sales] by [Company]”
+#                 No report required, but can fail if Q&A is disabled
+#                 or column names aren’t recognized.
+#
+# • Report tiles → pinned visuals that already exist in a Power BI
+#                  report.  100 % reliable and works in every tenant.
+#                  Requires a reportId and the visual/page names.
+#
+# This script uses the REPORT-BASED approach.
+# ---------------------------------------------------------------------
+
+
+# CREATES TILES THAT BUILD UP OUR DASHBOARD  # from your push-dataset creation step
+tiles_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/dashboards/{dashboard_id}/tiles"
+
+report_id = 'e780a33a-edc4-49c2-b5a1-102bda83408f' # this will change 
