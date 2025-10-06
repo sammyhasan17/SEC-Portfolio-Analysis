@@ -455,7 +455,8 @@ rows_payload = {"rows": all_company_data} # { "rows": [ {...}, {...}, {...} ] }
 #   403 = missing permission, 400 = payload problem, etc.)
 # ============================================================================
 
-# ✅ Make request
+# ✅ Make requests
+
 # fields
 response = requests.post(url, headers=headers, json=payload)
 print("Create Fields:", response.status_code, response.text)
@@ -473,6 +474,7 @@ elif response.status_code == 400:
     print("❌ Bad Request (check payload format / schema).")
 else:
     print("⚠️ Unexpected error:", response.status_code, response.text)
+
 
 # get dataset id from response
 dataset_id = response.json()["id"]
@@ -511,3 +513,19 @@ else:
 
 
 
+dashboard_name = "Market Overview"
+
+dash_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/dashboards"
+dash_payload = {"name": dashboard_name}
+
+dash_resp = requests.post(dash_url, headers=headers, json=dash_payload)
+print("Create dashboard:", dash_resp.status_code, dash_resp.text)
+
+if dash_resp.status_code in (200, 201):
+    dashboard_id = dash_resp.json()["id"]
+    print("✅ Dashboard created:", dashboard_name, dashboard_id)
+else:
+    raise RuntimeError(f"Dashboard creation failed: {dash_resp.status_code} {dash_resp.text}")
+
+
+# CREATES TILES THAT BUILD UP OUR DASHBOARD
