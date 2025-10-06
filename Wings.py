@@ -547,3 +547,7 @@ else:
 tiles_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/dashboards/{dashboard_id}/tiles"
 
 report_id = 'e780a33a-edc4-49c2-b5a1-102bda83408f' # this will change 
+
+# Note that VBA script is not up to date with Fabric actions
+
+# we want to automate the report creation (last 10%)
