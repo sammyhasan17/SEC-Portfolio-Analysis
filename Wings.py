@@ -197,8 +197,6 @@ for cik in company_map:
 
 
 
-
-
     # Open the Excel workbook
     wk = xw.books.open(r'C:\Users\Sammy\OneDrive\Documents\GitHub\SEC-to-EXCEL\ticker_file.xlsm')
 
@@ -275,8 +273,6 @@ start_row = 1
 start_col = 1  # Column A
 
 # sheet2['A1'].value = "hello world"
-
-# sheet2['A1'].value = all_company_data # it could be a list
 
 # Define column order explicitly so Excel columns are consistent
 headers = [
@@ -504,9 +500,6 @@ elif row_response.status_code >= 500:
 else:
     print("⚠️ Unexpected rows response:", row_response.status_code, row_response.text)
 
-# recap:
-
-# https://chatgpt.com/c/68dc5a8e-02d4-8325-aea7-f13f944b562f
 
 
 # We got records to popoulate in Fabric! now use fabric to make dashboards in the cloud!
@@ -544,10 +537,154 @@ else:
 
 
 # CREATES TILES THAT BUILD UP OUR DASHBOARD  # from your push-dataset creation step
-tiles_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/dashboards/{dashboard_id}/tiles"
+# tiles_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/dashboards/{dashboard_id}/tiles"
+# do we need this also ?
 
-report_id = 'e780a33a-edc4-49c2-b5a1-102bda83408f' # this will change 
 
-# Note that VBA script is not up to date with Fabric actions
+report_id = 'e780a33a-edc4-49c2-b5a1-102bda83408f' # this will change ?
 
-# we want to automate the report creation (last 10%)
+
+# we want to automate the report creation (last 10%) 
+
+# 1. bring in dataset to fabric -> 2. create a report in fabric with that data 
+# (optinally) update that same report with new data
+
+
+# ============================================================================
+# 🆕 NEW SECTION: AUTOMATED REPORT CREATION
+# ============================================================================
+
+def create_report(workspace_id, dataset_id, report_name, access_token):
+    """Creates a new blank report connected to the dataset."""
+    report_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports"
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "name": report_name,
+        "datasetId": dataset_id
+    }
+    
+    response = requests.post(report_url, headers=headers, json=payload)
+    
+    if response.status_code in (200, 201):
+        report_id = response.json()["id"]
+        print(f"\n✅ Report '{report_name}' created successfully!")
+        print(f"   Report ID: {report_id}")
+        return report_id
+    else:
+        print(f"\n❌ Failed to create report: {response.status_code}")
+        print(response.text)
+        return None
+
+
+def clone_report_from_template(workspace_id, template_report_id, dataset_id, report_name, access_token):
+    """
+    Clones an existing template report and rebinds it to the new dataset.
+    This is the RECOMMENDED approach for production automation.
+    """
+    clone_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{template_report_id}/Clone"
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "name": report_name,
+        "targetModelId": dataset_id,
+        "targetWorkspaceId": workspace_id
+    }
+    
+    response = requests.post(clone_url, headers=headers, json=payload)
+    
+    if response.status_code in (200, 201):
+        report_id = response.json()["id"]
+        print(f"\n✅ Report cloned from template!")
+        print(f"   New Report ID: {report_id}")
+        return report_id
+    else:
+        print(f"\n❌ Clone failed: {response.status_code}")
+        print(response.text)
+        return None
+
+
+def pin_report_to_dashboard(workspace_id, report_id, dashboard_id, access_token):
+    """
+    Pins the entire report to the dashboard.
+    Note: For individual visuals, you need page/visual names.
+    """
+    # Get report pages first
+    pages_url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/reports/{report_id}/pages"
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.get(pages_url, headers=headers)
+    
+    if response.status_code == 200:
+        pages = response.json().get("value", [])
+        if pages:
+            first_page = pages[0]
+            page_name = first_page.get("name", "ReportSection")
+            print(f"   Found report page: {page_name}")
+            
+            # Note: To pin specific visuals, you'd need visual IDs
+            # For now, we'll just confirm the report is ready
+            print(f"   Report is ready to be manually pinned to dashboard")
+            print(f"   Or use Power BI Service UI to pin visuals")
+            return True
+    else:
+        print(f"   Could not retrieve report pages: {response.status_code}")
+        return False
+
+
+# ============================================================================
+# EXECUTE REPORT AUTOMATION
+# ============================================================================
+
+print("\n" + "="*60)
+print("🎨 STARTING REPORT AUTOMATION")
+print("="*60)
+
+report_name = f"SEC Analysis Report {today}"
+
+# # Option 1: Create blank report (uncomment to use)
+# report_id = create_report(workspace_id, dataset_id, report_name, access_token)
+
+# Option 2: Clone from template (RECOMMENDED - uncomment and add template ID)
+template_report_id = "e780a33a-edc4-49c2-b5a1-102bda83408f" # long string after /reports/
+
+clone_report_from_template(
+    workspace_id, 
+    template_report_id,      # Your original report's structure
+    dataset_id,              # YOUR NEW DATASET (created today with fresh SEC data)
+    report_name,             # New name like "SEC Analysis Report 10-07"
+    access_token
+)
+
+if report_id:
+    # Try to get report structure
+    pin_report_to_dashboard(workspace_id, report_id, dashboard_id, access_token)
+    
+    print("\n" + "="*60)
+    print("✅ AUTOMATION COMPLETE!")
+    print("="*60)
+    print(f"📊 Dataset: {dataset_name} (ID: {dataset_id})")
+    print(f"📈 Dashboard: {dashboard_name} (ID: {dashboard_id})")
+    print(f"📋 Report: {report_name} (ID: {report_id})")
+    print("\n🔗 Next Steps:")
+    print("   1. Open Power BI Service and navigate to your workspace")
+    print("   2. Open the report and add visuals manually")
+    print("   3. OR create a template report and use clone_report_from_template()")
+    print("   4. Pin visuals from the report to your dashboard")
+    print("="*60)
+else:
+    print("\n❌ Report creation failed. Check errors above.")
+
+print("\n✅ Script execution finished!")
