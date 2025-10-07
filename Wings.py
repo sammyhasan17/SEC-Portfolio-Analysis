@@ -2,7 +2,6 @@ import requests
 import xlwings as xw
 from datetime import datetime
 
-
 # Company name and CIK mapping
 company_map = {
     "0000732717": "AT&T (T)",                     # Telecommunications & media
@@ -196,7 +195,6 @@ for cik in company_map:
     # could we optimze this so we could re-use results list?
 
 
-
     # Open the Excel workbook
     wk = xw.books.open(r'C:\Users\Sammy\OneDrive\Documents\GitHub\SEC-to-EXCEL\ticker_file.xlsm')
 
@@ -226,7 +224,6 @@ for cik in company_map:
             val_str = val
         sheet.range((write_row, start_col)).value = [label, val_str]
         write_row += 1
-
 
 
 # success output
@@ -301,8 +298,6 @@ for company in all_company_data:
 # xlwings will expand this 2D list into multiple rows/columns automatically.
 sheet2['A2'].value = rows
 
-
-
 # ========================================================================
 # 🔗 PUSH DATA TO POWER BI (REST API / Azure AD (Azure Active Directory) & Authentication with MSAL)
 # ========================================================================
@@ -370,7 +365,6 @@ for row in all_company_data:
     row.pop("CIK", None)
 
 
-
 # ✅ Headers must be a dict
 headers = {
     "Authorization": f"Bearer {access_token}", 
@@ -395,9 +389,7 @@ for row in all_company_data:
         if row[col] in ["N/A", "", None]:
             row[col] = None
 
-
         
-
 # ✅ Build schema - 
 fields = []
 for col in headers_list:
@@ -500,11 +492,7 @@ elif row_response.status_code >= 500:
 else:
     print("⚠️ Unexpected rows response:", row_response.status_code, row_response.text)
 
-
-
-# We got records to popoulate in Fabric! now use fabric to make dashboards in the cloud!
-
-
+# We got records to popoulate in Fabric! Now use fabric to make dashboards in the cloud!
 
 dashboard_name = "Market Overview"
 
@@ -519,8 +507,6 @@ if dash_resp.status_code in (200, 201):
     print("✅ Dashboard created:", dashboard_name, dashboard_id)
 else:
     raise RuntimeError(f"Dashboard creation failed: {dash_resp.status_code} {dash_resp.text}")
-
-
 
 # ---------------------------------------------------------------------
 # • Q&A tiles   → created by Power BI’s natural-language engine.
@@ -541,13 +527,7 @@ else:
 # do we need this also ?
 
 
-report_id = 'e780a33a-edc4-49c2-b5a1-102bda83408f' # this will change ?
-
-
-# we want to automate the report creation (last 10%) 
-
-# 1. bring in dataset to fabric -> 2. create a report in fabric with that data 
-# (optinally) update that same report with new data
+report_id = 'e780a33a-edc4-49c2-b5a1-102bda83408f' # TODO: this will change ?
 
 
 # ============================================================================
