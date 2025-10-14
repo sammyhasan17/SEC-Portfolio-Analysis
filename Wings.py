@@ -205,7 +205,8 @@
 
 import requests
 import xlwings as xw
-from datetime import datetime
+import msal
+
 
 # Company name and CIK mapping
 company_map = {
@@ -374,35 +375,8 @@ for cik in company_map:
             # Print to console
         print(f"{label}: {val_str}")
 
-
-        ###############################################################
-        #  POPULATE DATA STRCUTURE FOR OUR DATA TO TRANSPOSE LATER   #
-        ###############################################################
-        
-        # testing global variable
-        # Build a row dict for this company
-    row_dict = {
-        "Company": name,
-        "CIK": cik_padded,
-        "Form": header_details.get("form", "N/A"),
-        "FY": header_details.get("fy", "N/A"),
-        "Period": header_details.get("fp", "N/A"),
-        "End Date": header_details.get("end", "N/A"),
-    }
-
-    # add metrics from results
-    for label, val in results:
-        row_dict[label] = val
-
-
-    # append to global list
-    all_company_data.append(row_dict)
-    # could we optimze this so we could re-use results list?
-
-
     # Open the Excel workbook
-    wk = xw.books.open(r'C:\Users\dele2\OneDrive\Documents\GitHub\SEC-Portfolio-Analysis\ticker_file.xlsm')
-
+    wk = xw.books.open(r'C:\Users\Sammy\OneDrive\Documents\GitHub\SEC-to-EXCEL\ticker_file.xlsm')
 
     # Select the 'Data' sheet
     sheet = wk.sheets('Data')
@@ -430,76 +404,10 @@ for cik in company_map:
         sheet.range((write_row, start_col)).value = [label, val_str]
         write_row += 1
 
-
 # success output
 
 print('####################')
 print('Program completed')
 print('####################')
-print('\n')
-
-# ---------- Write transposed row to 'PowerBI_Data' (headers across row 1) ----------
-
-# 0) Get/create the destination sheet
-try:
-    sheet2 = wk.sheets['PowerBI_Data']
-except Exception:
-    sheet2 = wk.sheets.add('PowerBI_Data', after=wk.sheets[-1])
-
-# 1) Define the header labels (left to right on row 1)
-# headers = [
-#     "Company","Form","FY","Period","End Date",
-#     "Net Sales","Gross Profit","SG&A","Net Cashflow from Operations",
-#     "Reported EBITDA","Estimated EBITDA","Gross Margin (%)"
-# ]
-
-# sheet2.range("A1").value = [headers]   # <- writes horizontally across row 1
-
-# Write each metric and its value to the sheet, one per row
-print(all_company_data) # JSON Formatted list
-print ("\n")
-
-import csv
-import sys
-import requests
-
-headers = list(all_company_data[0].keys())
-writer = csv.DictWriter(sys.stdout, fieldnames=headers)
-writer.writeheader()
-writer.writerows(all_company_data) # CSV Output
-
-# Select the 'Data' sheet
-sheet = wk.sheets('PowerBI_Data')
-start_row = 1
-start_col = 1  # Column A
-
-# sheet2['A1'].value = "hello world"
-
-# Define column order explicitly so Excel columns are consistent
-headers = [
-    "Company","CIK","Form","FY","Period","End Date",
-    "Net Sales","Gross Profit","SG&A","Net Cashflow from Operations",
-    "Estimated EBITDA","Gross Margin (%)"
-]
-# Write headers into the first row of the sheet (A1 → across to the right).
-# Wrapping headers in [ ... ] makes xlwings treat it as a single row instead of a column.
-sheet2['A1'].value = [headers]   # row of headers
-
-# Create an empty list that will hold each company's data row
-rows = []
-
-# Loop through every company dictionary in all_company_data
-for company in all_company_data:
-    # Build a row list following the exact header order
-    # row_dict.get(col, "N/A") → get the value for header col,
-    # if missing, put "N/A" instead so all rows have same length
-    row = [company.get(col, "N/A") for col in headers]
-    
-    # Add this row to the rows list
-    rows.append(row)
-
-# Write all rows to Excel starting at A2 (below headers).
-# xlwings will expand this 2D list into multiple rows/columns automatically.
-sheet2['A2'].value = rows
 
 
